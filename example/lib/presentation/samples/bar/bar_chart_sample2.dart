@@ -24,6 +24,10 @@ class BarChartSample2State extends State<BarChartSample2> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final barGroup1 = makeGroupData(0, 5, 12);
     final barGroup2 = makeGroupData(1, 16, 12);
     final barGroup3 = makeGroupData(2, 18, 5);
@@ -45,127 +49,129 @@ class BarChartSample2State extends State<BarChartSample2> {
     rawBarGroups = items;
 
     showingBarGroups = rawBarGroups;
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Row(
-              mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                makeTransactionsIcon(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    makeTransactionsIcon(),
+                    const SizedBox(
+                      width: 38,
+                    ),
+                    const Text(
+                      'Transactions',
+                      style: TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                    const SizedBox(
+                      width: 4,
+                    ),
+                    const Text(
+                      'state',
+                      style: TextStyle(color: Color(0xff77839a), fontSize: 16),
+                    ),
+                  ],
+                ),
                 const SizedBox(
-                  width: 38,
+                  height: 38,
                 ),
-                const Text(
-                  'Transactions',
-                  style: TextStyle(color: Colors.white, fontSize: 22),
+                Expanded(
+                  child: BarChart(
+                    BarChartData(
+                      maxY: 20,
+                      barTouchData: BarTouchData(
+                        touchTooltipData: BarTouchTooltipData(
+                          getTooltipColor: ((group) {
+                            return Colors.grey;
+                          }),
+                          getTooltipItem: (a, b, c, d) => null,
+                        ),
+                        touchCallback: (FlTouchEvent event, response) {
+                          if (response == null || response.spot == null) {
+                            setState(() {
+                              touchedGroupIndex = -1;
+                              showingBarGroups = List.of(rawBarGroups);
+                            });
+                            return;
+                          }
+
+                          touchedGroupIndex =
+                              response.spot!.touchedBarGroupIndex;
+
+                          setState(() {
+                            if (!event.isInterestedForInteractions) {
+                              touchedGroupIndex = -1;
+                              showingBarGroups = List.of(rawBarGroups);
+                              return;
+                            }
+                            showingBarGroups = List.of(rawBarGroups);
+                            if (touchedGroupIndex != -1) {
+                              var sum = 0.0;
+                              for (final rod
+                                  in showingBarGroups[touchedGroupIndex]
+                                      .barRods) {
+                                sum += rod.toY;
+                              }
+                              final avg = sum /
+                                  showingBarGroups[touchedGroupIndex]
+                                      .barRods
+                                      .length;
+
+                              showingBarGroups[touchedGroupIndex] =
+                                  showingBarGroups[touchedGroupIndex].copyWith(
+                                barRods: showingBarGroups[touchedGroupIndex]
+                                    .barRods
+                                    .map((rod) {
+                                  return rod.copyWith(
+                                      toY: avg, color: widget.avgColor);
+                                }).toList(),
+                              );
+                            }
+                          });
+                        },
+                      ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: bottomTitles,
+                            reservedSize: 42,
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 28,
+                            interval: 1,
+                            getTitlesWidget: leftTitles,
+                          ),
+                        ),
+                      ),
+                      borderData: FlBorderData(
+                        show: false,
+                      ),
+                      barGroups: showingBarGroups,
+                      gridData: const FlGridData(show: false),
+                    ),
+                  ),
                 ),
                 const SizedBox(
-                  width: 4,
-                ),
-                const Text(
-                  'state',
-                  style: TextStyle(color: Color(0xff77839a), fontSize: 16),
+                  height: 12,
                 ),
               ],
-            ),
-            const SizedBox(
-              height: 38,
-            ),
-            Expanded(
-              child: BarChart(
-                BarChartData(
-                  maxY: 20,
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: ((group) {
-                        return Colors.grey;
-                      }),
-                      getTooltipItem: (a, b, c, d) => null,
-                    ),
-                    touchCallback: (FlTouchEvent event, response) {
-                      if (response == null || response.spot == null) {
-                        setState(() {
-                          touchedGroupIndex = -1;
-                          showingBarGroups = List.of(rawBarGroups);
-                        });
-                        return;
-                      }
-
-                      touchedGroupIndex = response.spot!.touchedBarGroupIndex;
-
-                      setState(() {
-                        if (!event.isInterestedForInteractions) {
-                          touchedGroupIndex = -1;
-                          showingBarGroups = List.of(rawBarGroups);
-                          return;
-                        }
-                        showingBarGroups = List.of(rawBarGroups);
-                        if (touchedGroupIndex != -1) {
-                          var sum = 0.0;
-                          for (final rod
-                              in showingBarGroups[touchedGroupIndex].barRods) {
-                            sum += rod.toY;
-                          }
-                          final avg = sum /
-                              showingBarGroups[touchedGroupIndex]
-                                  .barRods
-                                  .length;
-
-                          showingBarGroups[touchedGroupIndex] =
-                              showingBarGroups[touchedGroupIndex].copyWith(
-                            barRods: showingBarGroups[touchedGroupIndex]
-                                .barRods
-                                .map((rod) {
-                              return rod.copyWith(
-                                  toY: avg, color: widget.avgColor);
-                            }).toList(),
-                          );
-                        }
-                      });
-                    },
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: bottomTitles,
-                        reservedSize: 42,
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 28,
-                        interval: 1,
-                        getTitlesWidget: leftTitles,
-                      ),
-                    ),
-                  ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  barGroups: showingBarGroups,
-                  gridData: const FlGridData(show: false),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 12,
             ),
           ],
         ),
@@ -216,19 +222,68 @@ class BarChartSample2State extends State<BarChartSample2> {
   }
 
   BarChartGroupData makeGroupData(int x, double y1, double y2) {
+    // final b = BackgroundBarChartRodData(
+    //     borderRadius: BorderRadius.only(
+    //       topLeft: Radius.circular(5),
+    //     ),
+    //     show: true,
+    //     toY: 20,
+    //     color: AppColors.borderColor);
+    final d = Radius.circular(0);
+
     return BarChartGroupData(
-      barsSpace: 4,
+      barsSpace: 0,
       x: x,
+      bigRodColor: Colors.grey.withOpacity(.5),
+      showbigStackRod: x == 4,
+      topbigStackRod: 20,
+      bottombigStackRod: 20,
+      rightbigStackRod: 25,
+      leftbigStackRod: 10,
       barRods: [
         BarChartRodData(
+            backDrawRodData: BackgroundBarChartRodData(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                ),
+                show: true,
+                toY: 20,
+                color: AppColors.borderColor),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
+            toY: y1,
+            color: widget.leftBarColor,
+            width: width,
+            rodStackItems: [
+              BarChartRodStackItem(0, 3, Colors.red),
+              BarChartRodStackItem(3, 6, Colors.green),
+              BarChartRodStackItem(6, 9, Colors.blue),
+            ]),
+        BarChartRodData(
+          backDrawRodData: BackgroundBarChartRodData(
+              borderRadius: BorderRadius.only(
+                  // topLeft: Radius.circular(0),
+                  // topRight:
+                  ),
+              show: true,
+              toY: 20,
+              color: AppColors.borderColor),
+          borderRadius: BorderRadius.circular(0),
           toY: y1,
-          color: widget.leftBarColor,
+          color: AppColors.contentColorWhite,
           width: width,
         ),
         BarChartRodData(
+          backDrawRodData: BackgroundBarChartRodData(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(5),
+              ),
+              show: true,
+              toY: 20,
+              color: AppColors.borderColor),
           toY: y2,
           color: widget.rightBarColor,
           width: width,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
       ],
     );

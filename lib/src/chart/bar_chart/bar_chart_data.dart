@@ -181,16 +181,32 @@ class BarChartGroupData with EquatableMixin {
   /// you can show some tooltipIndicators (a popup with an information)
   /// on top of each [BarChartRodData] using [showingTooltipIndicators],
   /// just put indices you want to show it on top of them.
-  BarChartGroupData({
-    required this.x,
-    bool? groupVertically,
-    List<BarChartRodData>? barRods,
-    double? barsSpace,
-    List<int>? showingTooltipIndicators,
-  })  : groupVertically = groupVertically ?? false,
+  BarChartGroupData( 
+      {required this.x,
+      bool? groupVertically,
+      List<BarChartRodData>? barRods,
+      double? barsSpace,
+      List<int>? showingTooltipIndicators,
+      this.showbigStackRod =false,
+      this.bigRodColor,
+      
+      this.leftbigStackRod=0, this.rightbigStackRod=0, 
+      this.topbigStackRod=0, this.bottombigStackRod=0,
+      
+      })
+      : groupVertically = groupVertically ?? false,
         barRods = barRods ?? const [],
         barsSpace = barsSpace ?? 2,
         showingTooltipIndicators = showingTooltipIndicators ?? const [];
+
+  final bool showbigStackRod;
+  final Color? bigRodColor;
+
+
+final double leftbigStackRod;
+final double rightbigStackRod;
+final double topbigStackRod;
+final double bottombigStackRod;
 
   /// Order along the x axis in which titles, and titles only, will be shown.
   ///
@@ -243,8 +259,23 @@ class BarChartGroupData with EquatableMixin {
     List<BarChartRodData>? barRods,
     double? barsSpace,
     List<int>? showingTooltipIndicators,
+       bool? showbigStackRod,
+   Color? bigRodColor,
+
+
+    double? leftbigStackRod,
+ double? rightbigStackRod,
+ double? topbigStackRod,
+ double? bottombigStackRod,
+
   }) {
     return BarChartGroupData(
+      leftbigStackRod:leftbigStackRod??this.leftbigStackRod ,
+      rightbigStackRod:rightbigStackRod??this.rightbigStackRod ,
+      topbigStackRod: topbigStackRod??this.topbigStackRod,
+      bottombigStackRod:bottombigStackRod??this.bottombigStackRod ,
+      showbigStackRod:showbigStackRod ?? this.showbigStackRod ,
+      bigRodColor: bigRodColor??this.bigRodColor,
       x: x ?? this.x,
       groupVertically: groupVertically ?? this.groupVertically,
       barRods: barRods ?? this.barRods,
@@ -521,17 +552,20 @@ class BackgroundBarChartRodData with EquatableMixin {
   /// background starts to show from [fromY] to [toY],
   /// It draws with [color] or [gradient]. You must provide one of them,
   /// you prevent to show it, using [show] property.
-  BackgroundBarChartRodData({
-    double? fromY,
-    double? toY,
-    bool? show,
-    Color? color,
-    this.gradient,
-  })  : fromY = fromY ?? 0,
+  BackgroundBarChartRodData(
+      {double? fromY,
+      double? toY,
+      bool? show,
+      Color? color,
+      this.gradient,
+      this.borderRadius})
+      : fromY = fromY ?? 0,
         toY = toY ?? 0,
         show = show ?? false,
         color = color ??
             ((color == null && gradient == null) ? Colors.blueGrey : null);
+
+  final BorderRadius? borderRadius;
 
   /// Determines to show or hide this
   final bool show;

@@ -155,11 +155,23 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
 
     for (var i = 0; i < data.barGroups.length; i++) {
       final barGroup = data.barGroups[i];
+      print(barGroup.bigRodColor);
+      bool isShowBigRod = barGroup.showbigStackRod;
+  final    Color bigRodColor = barGroup.bigRodColor ?? Colors.transparent;
+final topBig=barGroup.topbigStackRod;
+final rightBig=barGroup.rightbigStackRod; 
+final bottomBig=barGroup.bottombigStackRod;
+final leftBig=barGroup.leftbigStackRod;
+
+
       for (var j = 0; j < barGroup.barRods.length; j++) {
         final barRod = barGroup.barRods[j];
+
         final widthHalf = barRod.width / 2;
         final borderRadius =
             barRod.borderRadius ?? BorderRadius.circular(barRod.width / 2);
+        final borderRadiusBackGround = barRod.backDrawRodData.borderRadius ??
+            BorderRadius.circular(barRod.width / 2);
         final borderSide = barRod.borderSide;
 
         final x = groupBarsPosition[i].barsX[j];
@@ -171,6 +183,67 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
                 max(borderRadius.bottomLeft.y, borderRadius.bottomRight.y);
 
         RRect barRRect;
+
+        if (isShowBigRod && j == 0) {
+          print('ssss');
+
+          /// Draw [BackgroundBarChartRodData]
+          if (barRod.backDrawRodData.toY != barRod.backDrawRodData.fromY) {
+            if (barRod.backDrawRodData.toY > barRod.backDrawRodData.fromY) {
+              // positive
+              final bottom = getPixelY(
+                max(data.minY, barRod.backDrawRodData.fromY),
+                viewSize,
+                holder,
+              );
+              final top = min(
+                getPixelY(barRod.backDrawRodData.toY, viewSize, holder),
+                bottom - cornerHeight,
+              );
+
+              barRRect = RRect.fromLTRBAndCorners(
+                left - leftBig,
+                top - topBig,
+                right + rightBig,
+                bottom + bottomBig,
+                topLeft: Radius.circular(40),
+                topRight: Radius.circular(40),
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              );
+            } else {
+              // negative
+              final top = getPixelY(
+                min(data.maxY, barRod.backDrawRodData.fromY),
+                viewSize,
+                holder,
+              );
+              final bottom = max(
+                getPixelY(barRod.backDrawRodData.toY, viewSize, holder),
+                top + cornerHeight,
+              );
+
+              barRRect = RRect.fromLTRBAndCorners(
+                left + 0,
+                top + 0,
+                right + 0,
+                bottom + 0,
+                topLeft: Radius.circular(40),
+                topRight: Radius.circular(40),
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              );
+            }
+
+            final backDraw = barRod.backDrawRodData;
+            _barPaint.setColorOrGradient(
+              bigRodColor,
+              null,
+              barRRect.getRect(),
+            );
+            canvasWrapper.drawRRect(barRRect, _barPaint);
+          }
+        }
 
         /// Draw [BackgroundBarChartRodData]
         if (barRod.backDrawRodData.show &&
@@ -192,10 +265,10 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
               top,
               right,
               bottom,
-              topLeft: borderRadius.topLeft,
-              topRight: borderRadius.topRight,
-              bottomLeft: borderRadius.bottomLeft,
-              bottomRight: borderRadius.bottomRight,
+              topLeft: borderRadiusBackGround.topLeft,
+              topRight: borderRadiusBackGround.topRight,
+              bottomLeft: borderRadiusBackGround.bottomLeft,
+              bottomRight: borderRadiusBackGround.bottomRight,
             );
           } else {
             // negative
