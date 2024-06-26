@@ -155,7 +155,6 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
 
     for (var i = 0; i < data.barGroups.length; i++) {
       final barGroup = data.barGroups[i];
-      print(barGroup.bigRodColor);
       bool isShowBigRod = barGroup.showbigStackRod;
   final    Color bigRodColor = barGroup.bigRodColor ?? Colors.transparent;
 final topBig=barGroup.topbigStackRod;
@@ -185,7 +184,6 @@ final leftBig=barGroup.leftbigStackRod;
         RRect barRRect;
 
         if (isShowBigRod && j == 0) {
-          print('ssss');
 
           /// Draw [BackgroundBarChartRodData]
           if (barRod.backDrawRodData.toY != barRod.backDrawRodData.fromY) {
