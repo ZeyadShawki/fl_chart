@@ -199,7 +199,7 @@ class BarChartGroupData with EquatableMixin {
         barsSpace = barsSpace ?? 2,
         showingTooltipIndicators = showingTooltipIndicators ?? const [];
 
-  final bool showbigStackRod;
+   bool showbigStackRod;
   final Color? bigRodColor;
 
 
